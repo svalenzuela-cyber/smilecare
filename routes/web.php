@@ -18,3 +18,8 @@ Route::middleware('auth')->group(function () {
 });
 
 require __DIR__.'/auth.php';
+
+// TEST ONLY: page that only admins can open
+Route::get('/admin-test', function () {
+    return 'Welcome, Admin! You have access to this page.';
+})->middleware(['auth', 'role:admin']);

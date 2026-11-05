@@ -3,43 +3,44 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Password;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+use Illuminate\Validation\Rules;
 use Illuminate\View\View;
 
 class PasswordResetLinkController extends Controller
 {
-    /**
-     * Display the password reset link request view.
-     */
+    // Show the "Forgot password" form
     public function create(): View
     {
         return view('auth.forgot-password');
     }
 
-    /**
-     * Handle an incoming password reset link request.
-     *
-     * @throws ValidationException
-     */
+    // Change the password directly using the email (patients only)
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
             'email' => ['required', 'email'],
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        // We will send the password reset link to this user. Once we have attempted
-        // to send the link, we will examine the response then see the message we
-        // need to show to the user. Finally, we'll send out a proper response.
-        $status = Password::sendResetLink(
-            $request->only('email')
-        );
+        $user = User::where('email', $request->email)->first();
 
-        return $status == Password::RESET_LINK_SENT
-                    ? back()->with('status', __($status))
-                    : back()->withInput($request->only('email'))
-                        ->withErrors(['email' => __($status)]);
+        // Only patient accounts can be reset here. Admin accounts are protected.
+        if (! $user || $user->role !== 'patient') {
+            return back()
+                ->withInput($request->only('email'))
+                ->withErrors(['email' => 'We could not reset the password for this email.']);
+        }
+
+        $user->forceFill([
+            'password' => Hash::make($request->password),
+            'remember_token' => Str::random(60),   // logs the account out of other devices
+        ])->save();
+
+        return redirect()->route('login')->with('status', 'Your password has been changed. You can now log in.');
     }
 }

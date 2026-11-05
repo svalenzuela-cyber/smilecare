@@ -6,10 +6,16 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DentistController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ServiceController;
+use App\Models\Dentist;
+use App\Models\Service;
 use Illuminate\Support\Facades\Route;
 
+// PUBLIC landing page: shows active services and dentists from the database
 Route::get('/', function () {
-    return view('welcome');
+    return view('welcome', [
+        'services' => Service::where('is_active', true)->orderBy('name')->get(),
+        'dentists' => Dentist::where('is_active', true)->orderBy('name')->get(),
+    ]);
 });
 
 // Dashboard: admin analytics or patient summary, depending on the role

@@ -20,7 +20,7 @@
                 <x-application-logo class="w-14 h-14 fill-current text-teal-600" />
                 <span class="text-3xl font-bold text-teal-800">SmileCare</span>
             </a>
-            <p class="mt-2 text-sm text-teal-700">Dental Appointment & Analytics System</p>
+            
 
             <div class="w-full sm:max-w-md mt-6 px-6 py-6 bg-white shadow-md overflow-hidden rounded-2xl border-t-4 border-teal-500">
                 {{ $slot }}

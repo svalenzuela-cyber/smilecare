@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ServiceController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -17,9 +18,9 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
+// ADMIN ONLY: every page under /admin requires a logged-in admin
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::resource('services', ServiceController::class)->except(['show']);
+});
 
-// TEST ONLY: page that only admins can open
-Route::get('/admin-test', function () {
-    return 'Welcome, Admin! You have access to this page.';
-})->middleware(['auth', 'role:admin']);
+require __DIR__.'/auth.php';

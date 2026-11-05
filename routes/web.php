@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DentistController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ServiceController;
 use Illuminate\Support\Facades\Route;
@@ -21,6 +22,7 @@ Route::middleware('auth')->group(function () {
 // ADMIN ONLY: every page under /admin requires a logged-in admin
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::resource('services', ServiceController::class)->except(['show']);
+    Route::resource('dentists', DentistController::class)->except(['show']);
 });
 
 require __DIR__.'/auth.php';
